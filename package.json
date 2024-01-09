@@ -1,5 +1,5 @@
 {
-  "name": "lmaplugin-dropzone-input",
+  "name": "@arandu/lmaplugin-dropzone-input",
   "version": "0.0.1",
   "description": "",
   "main": "lib/index.js",

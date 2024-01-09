@@ -38,10 +38,7 @@ export default function DropzoneInputComponent({ form, field }: any) {
                 )}
 
                 {file && (
-                    <span
-                        className=""
-                        onClick={() => setProp(name, null)}
-                    >
+                    <span onClick={() => setProp(name, null)}>
                         <Icon name="close" />
                     </span>
                 )}
@@ -49,7 +46,7 @@ export default function DropzoneInputComponent({ form, field }: any) {
             
             {file
                 ? (
-                    <div className="">
+                    <div>
                         <img
                             alt="avatar"
                             style={{

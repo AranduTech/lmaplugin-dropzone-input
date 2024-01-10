@@ -43,7 +43,10 @@ const FileInput = ({
         <section>
             <div {...getRootProps({ style })}>
                 <input {...getInputProps()} />
-                <p className="m-0">{isDragActive ? 'Solte arquivos aqui' : placeholder}</p>
+
+                <p style={{ textAlign: 'center' }}>
+                    {isDragActive ? 'Solte arquivos aqui' : placeholder}
+                </p>
             </div>
         </section>
     );

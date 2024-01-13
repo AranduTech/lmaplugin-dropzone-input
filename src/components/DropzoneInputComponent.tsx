@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Dropzone, { Accept } from 'react-dropzone';
 
-import { FormFieldProps, FormValue } from '@arandu/laravel-mui-admin/lib/types/form';
+import { FormFieldProps, FormState, FormValue } from '@arandu/laravel-mui-admin/lib/types/form';
 import { dotAccessor } from '@arandu/laravel-mui-admin/lib/support/object';
 import { config, Icon, applyFilters, removeFilter } from '@arandu/laravel-mui-admin';
 
@@ -58,11 +58,11 @@ export default function DropzoneInputComponent({ form, field }: DropzoneFieldPro
         : file?.preview;
 
     React.useEffect(() => {
-        const filter = (transfers: FormValue[], { value }: { value: FormValue }) => {
-            if (value instanceof DropzoneFile) {
+        const filter = (transfers: FormValue[]) => {
+            if (file instanceof DropzoneFile) {
                 return [
                     ...transfers,
-                    value
+                    file,
                 ];
             }
             return transfers;
@@ -73,7 +73,7 @@ export default function DropzoneInputComponent({ form, field }: DropzoneFieldPro
         return () => {
             removeFilter('use_form_clone_transfers', filter);
         };
-    }, []);
+    }, [name, file]);
 
 
     return (

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import Dropzone, { Accept } from 'react-dropzone';
 
-import { FormFieldProps } from '@arandu/laravel-mui-admin/lib/types/form';
+import { FormFieldProps, FormValue } from '@arandu/laravel-mui-admin/lib/types/form';
 import { dotAccessor } from '@arandu/laravel-mui-admin/lib/support/object';
-import { config, Icon } from '@arandu/laravel-mui-admin';
+import { config, Icon, applyFilters, removeFilter } from '@arandu/laravel-mui-admin';
 
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -26,19 +26,20 @@ type DropzoneFieldProps = {
 
 type Style = { [className: string]: React.CSSProperties };
 
+const styles: Style = {
+    avatar: { 
+        position: 'relative',
+        maxWidth: 240,
+        maxHeight: 240,
+    },
+    closeBtn: {
+        position: 'absolute',
+        top: -5,
+        left: -5,
+    },
+};
+
 export default function DropzoneInputComponent({ form, field }: DropzoneFieldProps) {
-    const styles: Style = React.useMemo(() => ({
-        avatar: { 
-            position: 'relative',
-            maxWidth: 240,
-            maxHeight: 240,
-        },
-        closeBtn: {
-            position: 'absolute',
-            top: -5,
-            left: -5,
-        },
-    }), []);
     
     const { state: [ data ], setProp, errors } = form;
 
@@ -55,6 +56,25 @@ export default function DropzoneInputComponent({ form, field }: DropzoneFieldPro
     const fileSource = typeof file === 'string'
         ? transformSrc(file, { uploadId })
         : file?.preview;
+
+    React.useEffect(() => {
+        const filter = (transfers: FormValue[], { value }: { value: FormValue }) => {
+            if (value instanceof DropzoneFile) {
+                return [
+                    ...transfers,
+                    value
+                ];
+            }
+            return transfers;
+        };
+
+        applyFilters('use_form_clone_transfers', filter);
+
+        return () => {
+            removeFilter('use_form_clone_transfers', filter);
+        };
+    }, []);
+
 
     return (
         <Stack display="flex">

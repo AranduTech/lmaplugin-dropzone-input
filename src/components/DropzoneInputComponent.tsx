@@ -3,13 +3,11 @@ import Dropzone, { Accept } from 'react-dropzone';
 
 import { FormFieldProps, FormState, FormValue } from '@arandu/laravel-mui-admin/lib/types/form';
 import { dotAccessor } from '@arandu/laravel-mui-admin/lib/support/object';
-import { config, Icon, applyFilters, removeFilter } from '@arandu/laravel-mui-admin';
+import { config, Icon, applyFilters, removeFilter, addFilter } from '@arandu/laravel-mui-admin';
 
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import FormHelperText from '@mui/material/FormHelperText';
-
-import DropzoneFile from '../contracts/DropzoneFile';
 
 import useTransformSrc from '../hooks/useTransformSrc';
 
@@ -49,36 +47,36 @@ export default function DropzoneInputComponent({ form, field }: DropzoneFieldPro
         ...props
     } = field;
 
-    const file: string | DropzoneFile | null = dotAccessor(data, name);
+    const file: string | File | null = dotAccessor(data, name);
 
     const transformSrc = useTransformSrc();
 
     const fileSource = typeof file === 'string'
         ? transformSrc(file, { uploadId })
-        : file?.preview;
+        : (file ? URL.createObjectURL(file) : false);
 
-    React.useEffect(() => {
-        const filter = (transfers: FormValue[]) => {
-            if (file instanceof DropzoneFile) {
-                return [
-                    ...transfers,
-                    file,
-                ];
-            }
-            return transfers;
-        };
+    // React.useEffect(() => {
+    //     const filter = (transfers: FormValue[]) => {
+    //         if (file instanceof DropzoneFile) {
+    //             return [
+    //                 ...transfers,
+    //                 file,
+    //             ];
+    //         }
+    //         return transfers;
+    //     };
 
-        applyFilters('use_form_clone_transfers', filter);
+    //     addFilter('use_form_clone_transfers', filter);
 
-        return () => {
-            removeFilter('use_form_clone_transfers', filter);
-        };
-    }, [name, file]);
+    //     return () => {
+    //         removeFilter('use_form_clone_transfers', filter);
+    //     };
+    // }, [name, file]);
 
 
     return (
         <Stack display="flex">
-            {file
+            {fileSource
                 ? (
                     <Stack sx={styles.avatar}>
                         <img
@@ -105,18 +103,8 @@ export default function DropzoneInputComponent({ form, field }: DropzoneFieldPro
                 ) : (
                     <Dropzone
                         onDrop={(acceptedFiles) => {
-                            const originalFile = acceptedFiles[0];
 
-                            const file = new DropzoneFile(
-                                [originalFile],
-                                originalFile.name.substring(
-                                    originalFile.name.lastIndexOf('.')
-                                ),
-                                { 
-                                    type: originalFile.type,
-                                    preview: URL.createObjectURL(originalFile),
-                                }
-                            );
+                            const file = acceptedFiles[0];
 
                             setProp(name, file);
                         }}

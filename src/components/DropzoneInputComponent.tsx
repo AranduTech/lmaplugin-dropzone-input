@@ -63,7 +63,6 @@ export default function DropzoneInputComponent({ form, field }: DropzoneFieldPro
     } = field;
 
     const file: string | UploadedFile | null = dotAccessor(data, name);
-    console.log({ file });
 
     const transformSrc = useTransformSrc();
 

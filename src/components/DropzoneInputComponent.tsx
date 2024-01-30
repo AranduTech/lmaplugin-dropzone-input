@@ -1,9 +1,10 @@
 import * as React from 'react';
 import Dropzone, { Accept } from 'react-dropzone';
 
-import { FormFieldProps } from '@arandu/laravel-mui-admin/lib/types/form';
-import { dotAccessor } from '@arandu/laravel-mui-admin/lib/support/object';
 import { Icon } from '@arandu/laravel-mui-admin';
+import { UploadedFile } from '@arandu/laravel-mui-admin/lib/useBlob';
+import { dotAccessor } from '@arandu/laravel-mui-admin/lib/support/object';
+import { FormFieldProps } from '@arandu/laravel-mui-admin/lib/types/form';
 
 import { styled } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
@@ -15,7 +16,7 @@ import FormHelperText from '@mui/material/FormHelperText';
 import useTransformSrc from '../hooks/useTransformSrc';
 
 import FileInput from './FileInput';
-import useDropzoneInputComponents, { UploadedFile } from './DropzoneInputComponents.hooks';
+import useDropzoneInputComponents from './DropzoneInputComponents.hooks';
 
 
 type DropzoneFieldProps = {
@@ -62,6 +63,7 @@ export default function DropzoneInputComponent({ form, field }: DropzoneFieldPro
     } = field;
 
     const file: string | UploadedFile | null = dotAccessor(data, name);
+    console.log({ file });
 
     const transformSrc = useTransformSrc();
 

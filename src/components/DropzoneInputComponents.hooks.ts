@@ -23,25 +23,23 @@ export default function useDropzoneInputComponents() {
         if (isLocal) {
             window.open(`/storage/files/${file}` as string);
         } else {
-            const filename = (file as UploadedFile).filename.split('.')[0];
-
             const response = await axios({
-                url: route('api.file.download', { folder, filename }),
+                url: route(
+                    'api.file.download', 
+                    { folder, filename: (file as UploadedFile).filename }
+                ),
                 method: 'GET',
                 responseType: 'blob',
             });
+            // console.log({ response });
 
-            const fileBlob = new Blob([response.data]);
+            const filename = (file as UploadedFile)?.name.split('.')[0];
+            const fileBlob = response.data;
 
-            console.log({
-                filename,
+            useDownloadBlob(
                 fileBlob,
-            });
-
-            // useDownloadBlob(
-            //     fileBlob,
-            //     filename,
-            // );
+                filename,
+            );
         }        
     };
 

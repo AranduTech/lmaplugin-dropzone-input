@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { config } from '@arandu/laravel-mui-admin';
 
 type TransformSrcOptions = {

@@ -1,9 +1,7 @@
 
-import React from 'react';
-
 import axios from 'axios';
 
-import { route, useDownloadBlob } from '@arandu/laravel-mui-admin';
+import { config, route, useDownloadBlob } from '@arandu/laravel-mui-admin';
 
 
 export type UploadedFile = {
@@ -23,9 +21,13 @@ export default function useDropzoneInputComponents() {
         if (isLocal) {
             window.open(`/storage/files/${file}` as string);
         } else {
+            const apiRoute = config('dropzone')
+                ? config('dropzone.routes.api.download', 'api.file.download')
+                : 'api.file.download';
+
             const response = await axios({
                 url: route(
-                    'api.file.download', 
+                    apiRoute, 
                     { folder, filename: (file as UploadedFile).filename }
                 ),
                 method: 'GET',

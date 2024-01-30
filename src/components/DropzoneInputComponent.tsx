@@ -1,17 +1,22 @@
 import * as React from 'react';
 import Dropzone, { Accept } from 'react-dropzone';
 
-import { FormFieldProps, FormState, FormValue } from '@arandu/laravel-mui-admin/lib/types/form';
+import { FormFieldProps } from '@arandu/laravel-mui-admin/lib/types/form';
 import { dotAccessor } from '@arandu/laravel-mui-admin/lib/support/object';
-import { config, Icon, applyFilters, removeFilter, addFilter } from '@arandu/laravel-mui-admin';
+import { Icon } from '@arandu/laravel-mui-admin';
 
+import { styled } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
+import Grid from '@mui/material/Grid';
+import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import FormHelperText from '@mui/material/FormHelperText';
 
 import useTransformSrc from '../hooks/useTransformSrc';
 
 import FileInput from './FileInput';
+import useDropzoneInputComponents, { UploadedFile } from './DropzoneInputComponents.hooks';
+
 
 type DropzoneFieldProps = {
     form: FormFieldProps['form'],
@@ -22,102 +27,167 @@ type DropzoneFieldProps = {
     },
 };
 
-type Style = { [className: string]: React.CSSProperties };
 
-const styles: Style = {
-    avatar: { 
-        position: 'relative',
-        maxWidth: 240,
-        maxHeight: 240,
-    },
-    closeBtn: {
-        position: 'absolute',
-        top: -5,
-        left: -5,
-    },
-};
+const FilePreview = styled(Stack)(({ theme }) => ({
+    position: 'relative',
+    // maxWidth: 240,
+    maxHeight: 240,
+}));
+
+const RemoveFile = styled(Stack)(({ theme }) => ({
+    position: 'absolute',
+    right: 0,
+}));
+
+const RemoveImg = styled(Stack)(({ theme }) => ({
+    position: 'absolute',
+    top: -5,
+    left: -5,
+}));
+
 
 export default function DropzoneInputComponent({ form, field }: DropzoneFieldProps) {
+
+    const {
+        handleDownload,
+    } = useDropzoneInputComponents();
     
     const { state: [ data ], setProp, errors } = form;
 
     const {
         name, label,
         placeholder = '', uploadId,
+        multiple = false, 
         ...props
     } = field;
 
-    const file: string | File | null = dotAccessor(data, name);
+    const file: string | UploadedFile | null = dotAccessor(data, name);
 
     const transformSrc = useTransformSrc();
 
-    const fileSource = typeof file === 'string'
-        ? transformSrc(file, { uploadId })
-        : (file ? URL.createObjectURL(file) : false);
+    const fileSource = !multiple
+        ? (typeof file === 'string'
+            ? transformSrc(file, { uploadId })
+            : (file ? URL.createObjectURL(file) : false))
+        : false;
 
-    // React.useEffect(() => {
-    //     const filter = (transfers: FormValue[]) => {
-    //         if (file instanceof DropzoneFile) {
-    //             return [
-    //                 ...transfers,
-    //                 file,
-    //             ];
-    //         }
-    //         return transfers;
-    //     };
+    const fieldData = data[name] || [] || null;
 
-    //     addFilter('use_form_clone_transfers', filter);
+    const mountFilePreview = (file: string | UploadedFile | null, index: number = 0) => {
+        const isLocal = typeof file === 'string';
+        const uploadingNow = file instanceof File;
 
-    //     return () => {
-    //         removeFilter('use_form_clone_transfers', filter);
-    //     };
-    // }, [name, file]);
+        const useAvatar = uploadId === 'image';
 
+        return (
+            <FilePreview>
+                {useAvatar && !multiple
+                    ? (
+                        <>
+                            <img
+                                alt="avatar"
+                                style={{
+                                    width: 163,
+                                    height: 163,
+                                    backgroundColor: '#e8e8e8',
+                                    border: '1px solid #00000033',
+                                    borderRadius: '50%',
+                                    objectFit: 'cover',
+                                }}
+                                className={`text-center`}
+                                src={fileSource as string}
+                            />
+                        
+                            <RemoveImg onClick={() => setProp(name, null)} >
+                                <Icon name="close" />
+                            </RemoveImg>
+                        </>
+                    )
+                    : (
+                        <Stack flexDirection="row" justifyContent="space-between" >
+                            <Typography>
+                                {`• ${isLocal
+                                    ? file
+                                    : file?.name
+                                }`}
+                            </Typography>
+
+                            <Grid>
+                                <Stack flexDirection="row" gap={1} >
+                                    {!uploadingNow && (
+                                        <Button
+                                            variant="outlined"
+                                            size="small"
+                                            onClick={() => handleDownload(file, isLocal)}
+                                            sx={{ minWidth: 24, p: 0 }}
+                                        >
+                                            <Icon name="download" />
+                                        </Button>
+                                    )}
+
+                                    <Button 
+                                        variant="outlined"
+                                        size="small"
+                                        onClick={() => {
+                                            const filesToDrop = multiple
+                                                ? (fieldData as File[]).filter((_, i) => i !== index)
+                                                : null;
+
+                                            setProp(name, filesToDrop);
+                                        }} 
+                                        sx={{ minWidth: 24, p: 0 }}
+                                    >
+                                        <Icon name="close" />
+                                    </Button>
+                                </Stack>
+                            </Grid>
+                        </Stack>
+                    )
+                }
+            </FilePreview>
+        );
+    };
 
     return (
         <Stack display="flex">
-            {fileSource
-                ? (
-                    <Stack sx={styles.avatar}>
-                        <img
-                            alt="avatar"
-                            style={{
-                                width: 163,
-                                height: 163,
-                                backgroundColor: '#e8e8e8',
-                                border: '1px solid #00000033',
-                                borderRadius: '50%',
-                                objectFit: 'cover',
+            {fileSource && !multiple
+                ? mountFilePreview(file)
+                : (
+                    <>
+                        <Dropzone
+                            onDrop={(acceptedFiles) => {
+                                const filesToDrop = multiple
+                                    ? [
+                                        ...(fieldData as File[]),
+                                        ...acceptedFiles,
+                                    ]
+                                    : acceptedFiles[0];
+
+                                setProp(name, filesToDrop);
                             }}
-                            className={`text-center`}
-                            src={fileSource}
-                        />
-
-                        <Typography 
-                            sx={styles.closeBtn}
-                            onClick={() => setProp(name, null)}
+                            maxFiles={multiple ? 10 : 1}
+                            {...props}
                         >
-                            <Icon name="close" />
-                        </Typography>
-                    </Stack>
-                ) : (
-                    <Dropzone
-                        onDrop={(acceptedFiles) => {
+                            {(inputProps) => (
+                                <FileInput
+                                    placeholder={placeholder}
+                                    {...inputProps}
+                                />
+                            )}
+                        </Dropzone>
 
-                            const file = acceptedFiles[0];
-
-                            setProp(name, file);
-                        }}
-                        maxFiles={1}
-                        {...props}
-                    >
-                        {(inputProps) => (
-                            <FileInput
-                                placeholder={placeholder}
-                                {...inputProps}
-                            />
+                        {multiple && (
+                            <Stack sx={{ my: 1 }} gap={1} >
+                                {(fieldData as UploadedFile[])
+                                    .map((file: UploadedFile | null, index: number) => (
+                                        <React.Fragment key={index} >
+                                            {mountFilePreview(file, index)}
+                                        </React.Fragment>
+                                    ))
+                                }
+                            </Stack>
                         )}
-                    </Dropzone>
+                    </>
                 )
             }
 

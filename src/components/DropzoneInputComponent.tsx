@@ -29,15 +29,20 @@ type DropzoneFieldProps = {
 };
 
 
+const Label = styled(Typography)(({ theme }) => ({
+    color: '#00000099',
+    'font-family': 'Roboto',
+    'font-size': '18px',
+    'font-weight': '400',
+    'line-height': '12px',
+    'letter-spacing': '0.15000000596046448px',
+    'text-align': 'left',
+}));
+
 const FilePreview = styled(Stack)(({ theme }) => ({
     position: 'relative',
     // maxWidth: 240,
     maxHeight: 240,
-}));
-
-const RemoveFile = styled(Stack)(({ theme }) => ({
-    position: 'absolute',
-    right: 0,
 }));
 
 const RemoveImg = styled(Stack)(({ theme }) => ({
@@ -155,6 +160,10 @@ export default function DropzoneInputComponent({ form, field }: DropzoneFieldPro
                 ? mountFilePreview(file)
                 : (
                     <>
+                        <Label sx={{ pb: 1.75 }} >
+                            {label}
+                        </Label>
+
                         <Dropzone
                             onDrop={(acceptedFiles) => {
                                 const filesToDrop = multiple

@@ -73,7 +73,7 @@ export default function DropzoneInputComponent({ form, field }: DropzoneFieldPro
 
     const fileSource = !multiple
         ? (typeof file === 'string'
-            ? transformSrc(file, { uploadId })
+            ? transformSrc(file, { uploadId, data, name })
             : (file ? URL.createObjectURL(file) : false))
         : false;
 

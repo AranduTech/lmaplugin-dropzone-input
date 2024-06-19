@@ -3,7 +3,9 @@ import React from 'react';
 import { config } from '@arandu/laravel-mui-admin';
 
 type TransformSrcOptions = {
-    uploadId?: string
+    uploadId?: string,
+    data?: Object,
+    name?: string,
 };
 
 type UseTransformCallback = (src: string, options: TransformSrcOptions) => string;
